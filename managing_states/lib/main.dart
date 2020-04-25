@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 
 void main() {
   runApp(MyApp());
@@ -91,6 +92,89 @@ class TapboxB extends StatelessWidget {
   }
 }
 
+class ParentWidgetC extends StatefulWidget {
+  @override
+  State<ParentWidgetC> createState() => _ParentWidgetCState();
+}
+
+class _ParentWidgetCState extends State<ParentWidgetC> {
+  bool _active = false;
+
+  void _handleWidgetCTap() {
+    setState(() {
+      _active = !_active;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        child: TapBoxC(
+      active: _active,
+      onChanged: _handleWidgetCTap,
+    ));
+  }
+}
+
+class TapBoxC extends StatefulWidget {
+  final bool active;
+  final Function onChanged;
+
+  TapBoxC({Key key, this.active: false, @required this.onChanged})
+      : super(key: key);
+
+  @override
+  State<TapBoxC> createState() => _TapBoxCState();
+}
+
+class _TapBoxCState extends State<TapBoxC> {
+  bool _highlight = false;
+  void _handleTapDown(TapDownDetails details) {
+    setState(() {
+      _highlight = true;
+    });
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  void _handleTapCancel() {
+    setState(() {
+      _highlight = false;
+    });
+  }
+
+  void _handleTap() {
+    widget.onChanged();
+  }
+
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapCancel: _handleTapCancel,
+      onTapUp: _handleTapUp,
+      onTap: _handleTap,
+      child: Container(
+        child: Center(
+          child: Text(
+            widget.active ? 'Active' : 'Inactive',
+            style: TextStyle(fontSize: 32.0, color: Colors.white),
+          ),
+        ),
+        width: 200,
+        height: 200,
+        decoration: BoxDecoration(
+          color: widget.active ? Colors.lightGreen[700] : Colors.grey[600],
+          border: _highlight ? Border.all(color: Colors.teal[700]) : null,
+        ),
+      ),
+    );
+  }
+}
+
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -99,10 +183,7 @@ class MyApp extends StatelessWidget {
       title: 'Managing State',
       home: Scaffold(
         appBar: AppBar(title: Text('Managing States')),
-        body: ListView(children: [
-          TapboxA(),
-          ParentWidgetB(),
-        ]),
+        body: ListView(children: [TapboxA(), ParentWidgetB(), ParentWidgetC()]),
       ),
     );
   }
